@@ -108,7 +108,7 @@ pub fn draw_collision(painter: &Painter, rect: &Rect, col_type: u8) {
                 )*
             }
         };
-        (# ($vec:tt, $color:expr)) => { draw_collision_polygon(painter, colz!(@ $vec).to_vec(), $color) };
+        (# ($vec:tt, $color:tt)) => { draw_collision_polygon(painter, colz!(@ $vec).to_vec(), colz!(~ $color)) };
         (# { $($content:tt)* }) => {{ $($content)* }};
         (@ square) => { colz!(@ [lt,rt,rb,lb]) };           // ■
         (@ right_up_triangle) => { colz!(@ [lb,rt,rb]) };   // ◢
@@ -125,46 +125,52 @@ pub fn draw_collision(painter: &Painter, rect: &Rect, col_type: u8) {
         (% ct) => { rect.center_top() };
         (% cb) => { rect.center_bottom() };
         (% $pos:expr) => { $pos };
+        (~ solid) => { COLLISION_BG_COLOR };
+        (~ passable) => { COLLISION_BG_COLOR_PASSABLE };
+        (~ lava) => { COLLISION_BG_COLOR_LAVA };
+        (~ still_water) => { COLLISION_BG_COLOR_WATER_STILL };
+        (~ soft_rock) => { COLLISION_BG_COLOR_SOFT_ROCK };
+        (~ $c:expr) => { $c };
     }
     colz!{
         0x00 => { /* Blank */ },
-        0x01 => (square, COLLISION_BG_COLOR),
-        0x02 => (square, COLLISION_BG_COLOR_PASSABLE),
-        0x03 => ([lb,rc,rb], COLLISION_BG_COLOR),
-        0x04 => ([lc,rt,rb,lb], COLLISION_BG_COLOR),
-        0x05 => ([lb,ct,rt,rb], COLLISION_BG_COLOR),
-        0x06 => ([rt,rb,cb], COLLISION_BG_COLOR),
-        0x07 => (right_up_triangle, COLLISION_BG_COLOR),
-        0x09 => (square, COLLISION_BG_COLOR_LAVA),
-        0x12 => (square, COLLISION_BG_COLOR_WATER_STILL),
-        0x14 => ([lb,rc,rb], COLLISION_BG_COLOR_PASSABLE),
-        0x15 => ([lc,rt,rb,lb], COLLISION_BG_COLOR_PASSABLE),
-        0x16 => ([lb,ct,rt,rb], COLLISION_BG_COLOR_PASSABLE),
-        0x17 => ([cb,rt,rb], COLLISION_BG_COLOR_PASSABLE),
-        0x18 => (right_up_triangle, COLLISION_BG_COLOR_PASSABLE),
+        0x01 => (square, solid),
+        0x02 => (square, passable),
+        0x03 => ([lb,rc,rb], solid),
+        0x04 => ([lc,rt,rb,lb], solid),
+        0x05 => ([lb,ct,rt,rb], solid),
+        0x06 => ([rt,rb,cb], solid),
+        0x07 => (right_up_triangle, solid),
+        0x09 => (square, lava),
+        0x12 => (square, still_water),
+        0x14 => ([lb,rc,rb], passable),
+        0x15 => ([lc,rt,rb,lb], passable),
+        0x16 => ([lb,ct,rt,rb], passable),
+        0x17 => ([cb,rt,rb], passable),
+        0x18 => (right_up_triangle, passable),
         0x1A => { /* Coin */ },
-        0x1B => (square, COLLISION_BG_COLOR_SOFT_ROCK),
-        0x1F => (right_up_triangle, COLLISION_BG_COLOR_PASSABLE),
-        0x43 => ([lc,rb,lb], COLLISION_BG_COLOR),
-        0x44 => ([lt,rc,rb,lb], COLLISION_BG_COLOR),
-        0x45 => ([lt,ct,rb,lb], COLLISION_BG_COLOR),
-        0x46 => ([lt,cb,lb], COLLISION_BG_COLOR),
-        0x47 => (left_up_triangle, COLLISION_BG_COLOR),
-        0x54 => ([lc,rb,lb], COLLISION_BG_COLOR_PASSABLE),
-        0x55 => ([lt,rc,rb,lb], COLLISION_BG_COLOR_PASSABLE),
-        0x56 => ([lt,ct,rb,lb], COLLISION_BG_COLOR_PASSABLE),
-        0x57 => ([lt,cb,lb], COLLISION_BG_COLOR_PASSABLE),
-        0x58 => (left_up_triangle, COLLISION_BG_COLOR_PASSABLE),
-        0x83 => ([lt,rt,rc], COLLISION_BG_COLOR),
-        0x84 => ([lt,rt,rb,lc], COLLISION_BG_COLOR),
-        0x85 => ([lt,rt,rb,cb], COLLISION_BG_COLOR),
-        0x86 => ([ct,rt,rb], COLLISION_BG_COLOR),
-        0x87 => (right_down_triangle, COLLISION_BG_COLOR),
-        0xC3 => ([lt,rt,lc], COLLISION_BG_COLOR),
-        0xC4 => ([lt,rt,rc,lb], COLLISION_BG_COLOR),
-        0xC5 => ([lt,rt,cb,lb], COLLISION_BG_COLOR),
-        0xC6 => ([lt,ct,lb], COLLISION_BG_COLOR),
-        0xC7 => (left_down_triangle, COLLISION_BG_COLOR),
+        0x1B => (square, soft_rock),
+        0x1F => (right_up_triangle, passable),
+        0x43 => ([lc,rb,lb], solid),
+        0x44 => ([lt,rc,rb,lb], solid),
+        0x45 => ([lt,ct,rb,lb], solid),
+        0x46 => ([lt,cb,lb], solid),
+        0x47 => (left_up_triangle, solid),
+        0x54 => ([lc,rb,lb], passable),
+        0x55 => ([lt,rc,rb,lb], passable),
+        0x56 => ([lt,ct,rb,lb], passable),
+        0x57 => ([lt,cb,lb], passable),
+        0x58 => (left_up_triangle, passable),
+        0x83 => ([lt,rt,rc], solid),
+        0x84 => ([lt,rt,rb,lc], solid),
+        0x85 => ([lt,rt,rb,cb], solid),
+        0x86 => ([ct,rt,rb], solid),
+        0x87 => (right_down_triangle, solid),
+        0xC3 => ([lt,rt,lc], solid),
+        0xC4 => ([lt,rt,rc,lb], solid),
+        0xC5 => ([lt,rt,cb,lb], solid),
+        0xC6 => ([lt,ct,lb], solid),
+        0xC7 => (left_down_triangle, solid),
         _ => {
             // Unknown, put text
             painter.rect_filled(*rect, 0.0, COLLISION_BG_COLOR);
